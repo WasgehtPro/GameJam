@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://ctr4vn7onx23o"]
+
+[ext_resource type="Script" path="res://Objects/table.gd" id="1_gm3kg"]
+[ext_resource type="Texture2D" uid="uid://dwcrftwp3fxpl" path="res://furniture9.png" id="1_saxc0"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_73ohr"]
+friction = 0.5
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_csh1y"]
+size = Vector2(24, 17)
+
+[node name="Table" type="RigidBody2D"]
+y_sort_enabled = true
+mass = 5.17
+physics_material_override = SubResource("PhysicsMaterial_73ohr")
+gravity_scale = 0.0
+can_sleep = false
+linear_damp = 1.0
+script = ExtResource("1_gm3kg")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 3.5)
+shape = SubResource("RectangleShape2D_csh1y")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("1_saxc0")

@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://duck3ak2bysci"]
+[gd_scene load_steps=9 format=3 uid="uid://duck3ak2bysci"]
 
 [ext_resource type="Texture2D" uid="uid://cowwuhvi80ksk" path="res://Tiles/tilesFloor.png" id="1_baxrm"]
 [ext_resource type="PackedScene" uid="uid://bmt1aict1k0h8" path="res://Player/Player.tscn" id="2_1vqtv"]
 [ext_resource type="Texture2D" uid="uid://c3f8571wobsrx" path="res://Enemy/Zombie.png" id="3_m5j0w"]
+[ext_resource type="PackedScene" uid="uid://ctr4vn7onx23o" path="res://Objects/table.tscn" id="4_k8woj"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hpflr"]
 texture = ExtResource("1_baxrm")
@@ -159,7 +160,7 @@ polygon = PackedVector2Array(96, 0, 96, 32, 0, 32, 0, 0)
 light_mode = 2
 
 [node name="MainLevel" type="Node2D"]
-position = Vector2(524, 315)
+position = Vector2(143, 128)
 
 [node name="TileMap" type="TileMap" parent="."]
 texture_filter = 1
@@ -172,7 +173,7 @@ occluder = SubResource("OccluderPolygon2D_mpo0o")
 occluder_light_mask = 3
 
 [node name="Player" parent="." instance=ExtResource("2_1vqtv")]
-position = Vector2(-9, -28)
+position = Vector2(-91, -14)
 rotation = -0.144446
 
 [node name="Icon" type="Sprite2D" parent="."]
@@ -181,3 +182,6 @@ texture_filter = 1
 material = SubResource("CanvasItemMaterial_l4mic")
 position = Vector2(80, -42)
 texture = ExtResource("3_m5j0w")
+
+[node name="Table" parent="." instance=ExtResource("4_k8woj")]
+position = Vector2(-50, -12)
