@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3 uid="uid://x2uwq5iogodp"]
+
+[ext_resource type="Texture2D" uid="uid://c3f8571wobsrx" path="res://Enemy/Zombie.png" id="1_aiyxo"]
+[ext_resource type="Script" path="res://Enemy/Enemy.gd" id="1_ss0gn"]
+[ext_resource type="Texture2D" uid="uid://cygnstkht6vmi" path="res://Enemy/Arms.png" id="3_beql5"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_hwj28"]
+light_mode = 2
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8af4p"]
+radius = 11.0454
+
+[node name="Enemy" type="CharacterBody2D"]
+texture_filter = 1
+material = SubResource("CanvasItemMaterial_hwj28")
+motion_mode = 1
+wall_min_slide_angle = 0.0
+script = ExtResource("1_ss0gn")
+
+[node name="Body" type="Sprite2D" parent="."]
+light_mask = 2
+use_parent_material = true
+texture = ExtResource("1_aiyxo")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_8af4p")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
+[node name="Arms" type="Sprite2D" parent="."]
+light_mask = 2
+use_parent_material = true
+texture = ExtResource("3_beql5")
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

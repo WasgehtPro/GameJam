@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bmt1aict1k0h8"]
+[gd_scene load_steps=8 format=3 uid="uid://bmt1aict1k0h8"]
 
 [ext_resource type="Texture2D" uid="uid://cs7ot8norqy2f" path="res://Player/Player.png" id="1_l0e7v"]
 [ext_resource type="Texture2D" uid="uid://o5apaqd5uo82" path="res://LightMasks/StandartCone.png" id="3_8sk5g"]
@@ -7,22 +7,26 @@
 [sub_resource type="GDScript" id="GDScript_5151p"]
 script/source = "extends CharacterBody2D
 
-var grabForce = 25
+var grabForce = 50
 var pushForce = 1000
 var speed = 75.0
 var slowDown = speed * 0.2
 var obj
+var hit = false
+var health = 100
 
-@onready var hands = $Hands
-@onready var grabRange: RayCast2D = $GrabRange
+@onready var sprite_2d = $Sprite2D
+@onready var hit_timer = $\"../hitTimer\"
+@onready var hands = $Sprite2D/Hands
+@onready var grabRange: RayCast2D = $Sprite2D/GrabRange
+@onready var progress_bar = $Control/ProgressBar
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
 
-
 func _physics_process(delta):
 
-	look_at(get_global_mouse_position())
+	sprite_2d.look_at(get_global_mouse_position())
 	
 	# Get the input direction and handle the movement/deceleration.
 	var direction = Vector2(Input.get_axis(\"Left\", \"Right\"), Input.get_axis(\"Up\", \"Down\"))
@@ -36,27 +40,44 @@ func _physics_process(delta):
 	
 	if Input.is_action_pressed(\"Push\"):
 		if not obj:
-			obj = grabRange.get_collider()
+			obj = grabRange.get_collider() 
 			
 		if obj is RigidBody2D:
 			obj.collision_layer = 2
-			obj.apply_force((hands.global_position - obj.global_position) * grabForce / obj.mass)	
+			obj.apply_force((hands.global_position - obj.global_position) * grabForce / obj.mass)
 	elif Input.is_action_just_released(\"Push\"):
-		if obj:
+		if obj is RigidBody2D:
 			obj.collision_layer = 1
 			obj = null
 	
-	
-	
 	if move_and_slide():
 		var col = get_last_slide_collision()
-		var obj: RigidBody2D = col.get_collider()
-		if obj is RigidBody2D:
+		var obj = col.get_collider()
+		if \"Enemy\" in obj.name:
+			if not hit:
+				hit = true
+				health -= 10
+				progress_bar.value = health
+				if progress_bar.value < 1:
+					progress_bar.visible = false
+				hit_timer.start()
+				
+		elif obj is RigidBody2D:
 			obj.apply_force(col.get_normal() * -pushForce / obj.mass)
+
+
+func _on_hit_timer_timeout():
+	hit = false
 "
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_axj04"]
 radius = 17.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wp2fi"]
+bg_color = Color(1, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ys33i"]
+bg_color = Color(0, 1, 0, 1)
 
 [node name="Player" type="CharacterBody2D"]
 texture_filter = 1
@@ -70,12 +91,14 @@ light_mask = 4
 texture_filter = 1
 texture = ExtResource("1_l0e7v")
 
-[node name="PointLight2D" type="PointLight2D" parent="."]
+[node name="PointLight2D" type="PointLight2D" parent="Sprite2D"]
 shadow_enabled = true
 texture = ExtResource("4_7jmii")
 texture_scale = 0.5
 
-[node name="PointLight2D2" type="PointLight2D" parent="."]
+[node name="PointLight2D2" type="PointLight2D" parent="Sprite2D"]
+light_mask = 2
+visibility_layer = 2
 blend_mode = 2
 range_item_cull_mask = 2
 shadow_enabled = true
@@ -83,12 +106,14 @@ shadow_item_cull_mask = 2
 texture = ExtResource("4_7jmii")
 texture_scale = 0.5
 
-[node name="PointLight2D3" type="PointLight2D" parent="."]
+[node name="PointLight2D3" type="PointLight2D" parent="Sprite2D"]
 shadow_enabled = true
 texture = ExtResource("3_8sk5g")
 texture_scale = 2.0
 
-[node name="PointLight2D4" type="PointLight2D" parent="."]
+[node name="PointLight2D4" type="PointLight2D" parent="Sprite2D"]
+light_mask = 2
+visibility_layer = 2
 blend_mode = 2
 range_item_cull_mask = 2
 shadow_enabled = true
@@ -96,7 +121,10 @@ shadow_item_cull_mask = 2
 texture = ExtResource("3_8sk5g")
 texture_scale = 2.0
 
-[node name="Hands" type="Node2D" parent="."]
+[node name="GrabRange" type="RayCast2D" parent="Sprite2D"]
+target_position = Vector2(30, 0)
+
+[node name="Hands" type="Node2D" parent="Sprite2D"]
 position = Vector2(30, 0)
 
 [node name="Camera2D" type="Camera2D" parent="."]
@@ -104,5 +132,22 @@ rotation = -1.5708
 zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 
-[node name="GrabRange" type="RayCast2D" parent="."]
-target_position = Vector2(30, 0)
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -17.0
+offset_top = -25.0
+offset_right = 18.0
+offset_bottom = -20.0
+
+[node name="ProgressBar" type="ProgressBar" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_wp2fi")
+theme_override_styles/fill = SubResource("StyleBoxFlat_ys33i")
+value = 100.0
+show_percentage = false
