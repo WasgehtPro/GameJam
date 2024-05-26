@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://gjy0hfsyom6c"
-path="res://.godot/imported/Un1benannt.png-80cacfeb5c3b7d50555b7a66cf283fbc.ctex"
+uid="uid://b3f3hcjxl02rb"
+path="res://.godot/imported/Circle.png-81a4ae3e1736b08f19da065354b2ef5b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Un1benannt.png"
-dest_files=["res://.godot/imported/Un1benannt.png-80cacfeb5c3b7d50555b7a66cf283fbc.ctex"]
+source_file="res://LightMasks/Circle.png"
+dest_files=["res://.godot/imported/Circle.png-81a4ae3e1736b08f19da065354b2ef5b.ctex"]
 
 [params]
 

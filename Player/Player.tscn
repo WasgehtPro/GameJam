@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://bmt1aict1k0h8"]
+[gd_scene load_steps=9 format=3 uid="uid://bmt1aict1k0h8"]
 
 [ext_resource type="Texture2D" uid="uid://cs7ot8norqy2f" path="res://Player/Player.png" id="1_l0e7v"]
-[ext_resource type="Texture2D" uid="uid://b3f3hcjxl02rb" path="res://Unbenannt.png" id="2_sswe7"]
-[ext_resource type="Texture2D" uid="uid://gjy0hfsyom6c" path="res://Un1benannt.png" id="3_unl0d"]
+[ext_resource type="Texture2D" uid="uid://b3f3hcjxl02rb" path="res://LightMasks/Circle.png" id="2_pdi15"]
+[ext_resource type="Texture2D" uid="uid://bdssdhrh30sv8" path="res://LightMasks/Cone.png" id="3_g3ln2"]
+[ext_resource type="PackedScene" uid="uid://ctg0lfhxs0urf" path="res://pipe.tscn" id="4_w6b2c"]
 
 [sub_resource type="GDScript" id="GDScript_5151p"]
 script/source = "extends CharacterBody2D
@@ -58,8 +59,8 @@ func _physics_process(delta):
 				hit = true
 				health -= 10
 				progress_bar.value = health
-				if progress_bar.value < 1:
-					progress_bar.visible = false
+				if progress_bar.value < 1:					
+					get_tree().change_scene_to_file(\"res://Levels/MainMenu.tscn\")
 				hit_timer.start()
 				
 		elif obj is RigidBody2D:
@@ -68,6 +69,9 @@ func _physics_process(delta):
 
 func _on_hit_timer_timeout():
 	hit = false
+
+func TESTSOOS():
+	print(\"rawr\")
 "
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_axj04"]
@@ -93,7 +97,7 @@ texture = ExtResource("1_l0e7v")
 
 [node name="PointLight2D" type="PointLight2D" parent="Sprite2D"]
 shadow_enabled = true
-texture = ExtResource("2_sswe7")
+texture = ExtResource("2_pdi15")
 
 [node name="PointLight2D2" type="PointLight2D" parent="Sprite2D"]
 light_mask = 2
@@ -102,11 +106,11 @@ blend_mode = 2
 range_item_cull_mask = 2
 shadow_enabled = true
 shadow_item_cull_mask = 2
-texture = ExtResource("2_sswe7")
+texture = ExtResource("2_pdi15")
 
 [node name="PointLight2D3" type="PointLight2D" parent="Sprite2D"]
 shadow_enabled = true
-texture = ExtResource("3_unl0d")
+texture = ExtResource("3_g3ln2")
 texture_scale = 2.0
 
 [node name="PointLight2D4" type="PointLight2D" parent="Sprite2D"]
@@ -116,7 +120,7 @@ blend_mode = 2
 range_item_cull_mask = 2
 shadow_enabled = true
 shadow_item_cull_mask = 2
-texture = ExtResource("3_unl0d")
+texture = ExtResource("3_g3ln2")
 texture_scale = 2.0
 
 [node name="GrabRange" type="RayCast2D" parent="Sprite2D"]
@@ -124,6 +128,9 @@ target_position = Vector2(30, 0)
 
 [node name="Hands" type="Node2D" parent="Sprite2D"]
 position = Vector2(30, 0)
+
+[node name="Pipe" parent="Sprite2D/Hands" node_paths=PackedStringArray("player") instance=ExtResource("4_w6b2c")]
+player = NodePath("../../..")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 rotation = -1.5708

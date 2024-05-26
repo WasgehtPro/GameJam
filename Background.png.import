@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cwfgiaku17qwe"
-path="res://.godot/imported/StandartCircle.png-3171ce594f04091ec3280923b3ee3594.ctex"
+uid="uid://c3uvo2d3f0urv"
+path="res://.godot/imported/Background.png-d346e9ce37c7294bb8a0c89de5d380cd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://LightMasks/StandartCircle.png"
-dest_files=["res://.godot/imported/StandartCircle.png-3171ce594f04091ec3280923b3ee3594.ctex"]
+source_file="res://Background.png"
+dest_files=["res://.godot/imported/Background.png-d346e9ce37c7294bb8a0c89de5d380cd.ctex"]
 
 [params]
 
