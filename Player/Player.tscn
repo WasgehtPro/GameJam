@@ -1,12 +1,13 @@
-[gd_scene load_steps=9 format=3 uid="uid://bmt1aict1k0h8"]
+[gd_scene load_steps=8 format=3 uid="uid://bmt1aict1k0h8"]
 
 [ext_resource type="Texture2D" uid="uid://cs7ot8norqy2f" path="res://Player/Player.png" id="1_l0e7v"]
 [ext_resource type="Texture2D" uid="uid://b3f3hcjxl02rb" path="res://LightMasks/Circle.png" id="2_pdi15"]
 [ext_resource type="Texture2D" uid="uid://bdssdhrh30sv8" path="res://LightMasks/Cone.png" id="3_g3ln2"]
-[ext_resource type="PackedScene" uid="uid://ctg0lfhxs0urf" path="res://pipe.tscn" id="4_w6b2c"]
 
 [sub_resource type="GDScript" id="GDScript_5151p"]
 script/source = "extends CharacterBody2D
+
+class_name  player1
 
 var grabForce = 50
 var pushForce = 1000
@@ -16,6 +17,9 @@ var obj
 var hit = false
 var health = 100
 
+var hand
+@onready var pickUpRange = $PickUpRange
+
 @onready var sprite_2d = $Sprite2D
 @onready var hit_timer = $\"../hitTimer\"
 @onready var hands = $Sprite2D/Hands
@@ -24,11 +28,19 @@ var health = 100
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
+const PIPE = preload(\"res://Items/Pipe/pipe.tscn\")
+
 
 func _physics_process(delta):
-
+	
 	sprite_2d.look_at(get_global_mouse_position())
 	
+	if Input.is_action_just_pressed(\"LMB\") and not hand:
+		Equip()
+		
+	if Input.is_action_just_pressed(\"RMB\") and hand:
+		hand.Use()
+		
 	# Get the input direction and handle the movement/deceleration.
 	var direction = Vector2(Input.get_axis(\"Left\", \"Right\"), Input.get_axis(\"Up\", \"Down\"))
 	
@@ -41,8 +53,7 @@ func _physics_process(delta):
 	
 	if Input.is_action_pressed(\"Push\"):
 		if not obj:
-			obj = grabRange.get_collider() 
-			
+			obj = grabRange.get_collider()
 		if obj is RigidBody2D:
 			obj.collision_layer = 2
 			obj.apply_force((hands.global_position - obj.global_position) * grabForce / obj.mass)
@@ -59,19 +70,30 @@ func _physics_process(delta):
 				hit = true
 				health -= 10
 				progress_bar.value = health
-				if progress_bar.value < 1:					
+				if progress_bar.value < 1:
 					get_tree().change_scene_to_file(\"res://Levels/MainMenu.tscn\")
 				hit_timer.start()
-				
+	
 		elif obj is RigidBody2D:
 			obj.apply_force(col.get_normal() * -pushForce / obj.mass)
-
-
+	
 func _on_hit_timer_timeout():
 	hit = false
 
-func TESTSOOS():
-	print(\"rawr\")
+func Equip():
+	var obj = grabRange.get_collider()
+	if obj:
+		if obj.is_in_group(\"Item\"):
+			var item = obj.pickUp()
+			hands.add_child(item)
+			item.onEquip()
+			hand = item
+
+func _on_pick_up_range_body_entered(body):
+	body.inRange = true
+
+func _on_pick_up_range_body_exited(body):
+	body.inRange = false
 "
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_axj04"]
@@ -83,7 +105,7 @@ bg_color = Color(1, 0, 0, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ys33i"]
 bg_color = Color(0, 1, 0, 1)
 
-[node name="Player" type="CharacterBody2D"]
+[node name="Player" type="CharacterBody2D" groups=["Player"]]
 texture_filter = 1
 script = SubResource("GDScript_5151p")
 
@@ -128,9 +150,6 @@ target_position = Vector2(30, 0)
 
 [node name="Hands" type="Node2D" parent="Sprite2D"]
 position = Vector2(30, 0)
-
-[node name="Pipe" parent="Sprite2D/Hands" node_paths=PackedStringArray("player") instance=ExtResource("4_w6b2c")]
-player = NodePath("../../..")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 rotation = -1.5708

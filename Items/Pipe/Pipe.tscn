@@ -1,0 +1,61 @@
+[gd_scene load_steps=7 format=3 uid="uid://ctg0lfhxs0urf"]
+
+[ext_resource type="Script" path="res://Items/Pipe/pipe.gd" id="1_eue07"]
+[ext_resource type="Texture2D" uid="uid://be72pl6tf2udi" path="res://Items/Pipe/Pipe.png" id="2_if7w7"]
+[ext_resource type="Texture2D" uid="uid://ou37ulo4tko1" path="res://Items/Pipe/PipeGlow.png" id="3_xjrcj"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fx6if"]
+size = Vector2(14, 9)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5aayv"]
+size = Vector2(13, 24)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_w2gif"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_if7w7")
+}],
+"loop": false,
+"name": &"default",
+"speed": 0.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_xjrcj")
+}],
+"loop": false,
+"name": &"highlighted",
+"speed": 0.0
+}]
+
+[node name="Pipe" type="RigidBody2D" groups=["Item"]]
+texture_filter = 1
+gravity_scale = 0.0
+linear_damp = 1.0
+script = ExtResource("1_eue07")
+
+[node name="HitBox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="HitBox"]
+position = Vector2(0, -7.5)
+shape = SubResource("RectangleShape2D_fx6if")
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, 0)
+shape = SubResource("RectangleShape2D_5aayv")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_w2gif")
+autoplay = "default"
+
+[node name="HighlightRange" type="Area2D" parent="."]
+
+[node name="Collision2" type="CollisionShape2D" parent="HighlightRange"]
+position = Vector2(-0.5, 0)
+shape = SubResource("RectangleShape2D_5aayv")
+
+[connection signal="mouse_shape_entered" from="." to="." method="_on_mouse_shape_entered"]
+[connection signal="mouse_entered" from="HitBox" to="." method="_on_hit_box_mouse_entered"]
+[connection signal="mouse_entered" from="HighlightRange" to="." method="_on_highlight_range_mouse_entered"]
+[connection signal="mouse_exited" from="HighlightRange" to="." method="_on_highlight_range_mouse_exited"]

@@ -1,25 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://ctr4vn7onx23o"]
+[gd_scene load_steps=5 format=3 uid="uid://ctr4vn7onx23o"]
 
 [ext_resource type="Texture2D" uid="uid://dwcrftwp3fxpl" path="res://furniture9.png" id="1_saxc0"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_73ohr"]
 friction = 0.5
-
-[sub_resource type="GDScript" id="GDScript_iou37"]
-script/source = "extends RigidBody2D
-
-var goal = Vector2(0, 0)
-var strength = 0.1
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	#apply_force((goal - global_position) * strength)
-	pass
-"
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_csh1y"]
 size = Vector2(24, 17)
@@ -34,7 +18,6 @@ physics_material_override = SubResource("PhysicsMaterial_73ohr")
 gravity_scale = 0.0
 can_sleep = false
 linear_damp = 1.0
-script = SubResource("GDScript_iou37")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 3.5)

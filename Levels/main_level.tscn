@@ -1,7 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://duck3ak2bysci"]
+[gd_scene load_steps=10 format=3 uid="uid://duck3ak2bysci"]
 
 [ext_resource type="Texture2D" uid="uid://cowwuhvi80ksk" path="res://Tiles/tilesFloor.png" id="1_baxrm"]
 [ext_resource type="PackedScene" uid="uid://bmt1aict1k0h8" path="res://Player/Player.tscn" id="2_1vqtv"]
+[ext_resource type="PackedScene" uid="uid://ctg0lfhxs0urf" path="res://Items/Pipe/Pipe.tscn" id="3_a81i0"]
 [ext_resource type="PackedScene" uid="uid://ctr4vn7onx23o" path="res://Objects/table.tscn" id="4_k8woj"]
 [ext_resource type="PackedScene" uid="uid://x2uwq5iogodp" path="res://Enemy/Enemy.tscn" id="4_pvinr"]
 
@@ -475,7 +476,7 @@ occluder = SubResource("OccluderPolygon2D_mpo0o")
 occluder_light_mask = 3
 
 [node name="Player" parent="." instance=ExtResource("2_1vqtv")]
-position = Vector2(-101, 46)
+position = Vector2(-105, 57)
 
 [node name="Table" parent="." instance=ExtResource("4_k8woj")]
 position = Vector2(-14, 47)
@@ -486,5 +487,8 @@ player = NodePath("../Player")
 
 [node name="hitTimer" type="Timer" parent="."]
 wait_time = 0.25
+
+[node name="Pipe" parent="." instance=ExtResource("3_a81i0")]
+position = Vector2(-59, 6)
 
 [connection signal="timeout" from="hitTimer" to="Player" method="_on_hit_timer_timeout"]
