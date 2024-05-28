@@ -4,9 +4,11 @@ extends CharacterBody2D
 @onready var navAgent = $NavigationAgent2D
 @onready var timer = $Timer
 @onready var arms = $Arms
+@onready var progress_bar = $Control/ProgressBar
 
 var speed = 20
 var pushForce = 500
+var health = 100
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta):
@@ -23,3 +25,9 @@ func _physics_process(delta):
 
 func _on_timer_timeout():
 	navAgent.target_position = player.global_position
+
+func hit(damage):
+	health -= damage
+	progress_bar.value = health
+	if progress_bar.value < 1:
+		queue_free()

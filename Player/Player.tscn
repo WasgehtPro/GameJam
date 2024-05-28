@@ -20,7 +20,7 @@ var health = 100
 var hand
 @onready var pickUpRange = $PickUpRange
 
-@onready var sprite_2d = $Sprite2D
+@onready var sprite = $Sprite2D
 @onready var hit_timer = $\"../hitTimer\"
 @onready var hands = $Sprite2D/Hands
 @onready var grabRange: RayCast2D = $Sprite2D/GrabRange
@@ -33,10 +33,13 @@ const PIPE = preload(\"res://Items/Pipe/pipe.tscn\")
 
 func _physics_process(delta):
 	
-	sprite_2d.look_at(get_global_mouse_position())
+	sprite.look_at(get_global_mouse_position())
 	
-	if Input.is_action_just_pressed(\"LMB\") and not hand:
-		Equip()
+	if Input.is_action_just_pressed(\"Equip\"):
+		if hand:
+			drop()
+		else:
+			equip()
 		
 	if Input.is_action_just_pressed(\"RMB\") and hand:
 		hand.Use()
@@ -80,7 +83,11 @@ func _physics_process(delta):
 func _on_hit_timer_timeout():
 	hit = false
 
-func Equip():
+func drop():
+	hand.drop(hands.global_transform, Vector2(1, 0).rotated(sprite.global_rotation))
+	hand = null
+
+func equip():
 	var obj = grabRange.get_collider()
 	if obj:
 		if obj.is_in_group(\"Item\"):
@@ -107,6 +114,7 @@ bg_color = Color(0, 1, 0, 1)
 
 [node name="Player" type="CharacterBody2D" groups=["Player"]]
 texture_filter = 1
+motion_mode = 1
 script = SubResource("GDScript_5151p")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

@@ -1,18 +1,25 @@
 extends Node2D
 
-@onready var pipe = $"."
 const PIPE = preload("res://Items/Pipe/pipe.tscn")
 @export var player: CharacterBody2D
 @onready var sprite = $Sprite
 var equipped = false
 @onready var collision = $Collision
+@onready var pipe = $"."
 
-func _on_area_2d_body_entered(body):
-	body.free()
-
-#func Use():
-	#create_tween().tween_property(pipe, "rotation", 90, 0.2)
-	#create_tween().tween_property(pipe, "rotation", 0, 1)
+func Use():
+	var swing1 = create_tween()
+	swing1.tween_property(self, "rotation", deg_to_rad(90), .05)
+	await  swing1.finished
+	var swing2 = create_tween()
+	swing2.tween_property(self, "rotation", deg_to_rad(0), .5)
+	
+func drop(transform, dir):
+	queue_free()
+	var item := PIPE.instantiate() as RigidBody2D
+	item.global_transform = transform
+	item.apply_force(dir * 2000)
+	get_tree().get_current_scene().add_child(item)
 	
 func onEquip():
 	collision.disabled = true
@@ -29,3 +36,8 @@ func _on_highlight_range_mouse_entered():
 func _on_highlight_range_mouse_exited():
 	if not equipped:
 		sprite.play("default")
+
+
+func _on_area_2d_body_entered(body):
+	if body.is_in_group("Enemy"):
+		body.hit(20)

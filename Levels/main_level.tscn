@@ -463,7 +463,6 @@ sources/0 = SubResource("TileSetAtlasSource_hpflr")
 polygon = PackedVector2Array(96, 0, 96, 32, 0, 32, 0, 0)
 
 [node name="MainLevel" type="Node2D"]
-position = Vector2(143, 128)
 
 [node name="TileMap" type="TileMap" parent="."]
 texture_filter = 1
@@ -476,7 +475,7 @@ occluder = SubResource("OccluderPolygon2D_mpo0o")
 occluder_light_mask = 3
 
 [node name="Player" parent="." instance=ExtResource("2_1vqtv")]
-position = Vector2(-105, 57)
+position = Vector2(-97, 9)
 
 [node name="Table" parent="." instance=ExtResource("4_k8woj")]
 position = Vector2(-14, 47)
