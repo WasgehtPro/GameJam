@@ -45,17 +45,23 @@ autoplay = "default"
 
 [node name="HighlightRange" type="Area2D" parent="."]
 
-[node name="Collision2" type="CollisionShape2D" parent="HighlightRange"]
+[node name="HighlightCollision" type="CollisionShape2D" parent="HighlightRange"]
 position = Vector2(-0.5, 0)
 shape = SubResource("RectangleShape2D_5aayv")
 
-[node name="Area2D" type="Area2D" parent="."]
+[node name="HitBox" type="Area2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-position = Vector2(0.5, -7.5)
+[node name="MainCollision" type="CollisionShape2D" parent="HitBox"]
+position = Vector2(0, -7.5)
 shape = SubResource("RectangleShape2D_g50ls")
+disabled = true
+
+[node name="ThrowTimer" type="Timer" parent="."]
+wait_time = 0.2
 
 [connection signal="mouse_shape_entered" from="." to="." method="_on_mouse_shape_entered"]
+[connection signal="body_entered" from="HighlightRange" to="." method="_on_highlight_range_body_entered"]
 [connection signal="mouse_entered" from="HighlightRange" to="." method="_on_highlight_range_mouse_entered"]
 [connection signal="mouse_exited" from="HighlightRange" to="." method="_on_highlight_range_mouse_exited"]
-[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
+[connection signal="body_entered" from="HitBox" to="." method="_on_area_2d_body_entered"]
+[connection signal="timeout" from="ThrowTimer" to="." method="_on_throw_timer_timeout"]

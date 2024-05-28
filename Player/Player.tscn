@@ -13,15 +13,15 @@ var grabForce = 50
 var pushForce = 1000
 var speed = 75.0
 var slowDown = speed * 0.2
-var obj
+var grabbedObj
 var hit = false
 var health = 100
 
 var hand
-@onready var pickUpRange = $PickUpRange
 
+@onready var pickUpRange = $PickUpRange
+@onready var hit_timer = $HitTimer
 @onready var sprite = $Sprite2D
-@onready var hit_timer = $\"../hitTimer\"
 @onready var hands = $Sprite2D/Hands
 @onready var grabRange: RayCast2D = $Sprite2D/GrabRange
 @onready var progress_bar = $Control/ProgressBar
@@ -42,8 +42,13 @@ func _physics_process(delta):
 			equip()
 		
 	if Input.is_action_just_pressed(\"RMB\") and hand:
-		hand.Use()
+		hand.use()
 		
+	if Input.is_action_pressed(\"Grab\"):
+		onGrab()
+	elif Input.is_action_just_released(\"Grab\"):
+		onGrabStop()
+	
 	# Get the input direction and handle the movement/deceleration.
 	var direction = Vector2(Input.get_axis(\"Left\", \"Right\"), Input.get_axis(\"Up\", \"Down\"))
 	
@@ -53,35 +58,48 @@ func _physics_process(delta):
 		velocity = direction * speed * delta * 50
 	else:
 		velocity = Vector2(move_toward(velocity.x, 0, slowDown), move_toward(velocity.y, 0, slowDown))
-	
-	if Input.is_action_pressed(\"Push\"):
-		if not obj:
-			obj = grabRange.get_collider()
-		if obj is RigidBody2D:
-			obj.collision_layer = 2
-			obj.apply_force((hands.global_position - obj.global_position) * grabForce / obj.mass)
-	elif Input.is_action_just_released(\"Push\"):
-		if obj is RigidBody2D:
-			obj.collision_layer = 1
-			obj = null
-	
+
 	if move_and_slide():
-		var col = get_last_slide_collision()
-		var obj = col.get_collider()
-		if \"Enemy\" in obj.name:
-			if not hit:
-				hit = true
-				health -= 10
-				progress_bar.value = health
-				if progress_bar.value < 1:
-					get_tree().change_scene_to_file(\"res://Levels/MainMenu.tscn\")
-				hit_timer.start()
-	
-		elif obj is RigidBody2D:
-			obj.apply_force(col.get_normal() * -pushForce / obj.mass)
-	
+		handleCollision()
+
+func onGrab():
+	if not grabbedObj:
+		grabbedObj = grabRange.get_collider()
+		if grabbedObj:
+			if grabbedObj.is_in_group(\"Item\"):
+				grabbedObj.onThrowStart()
+	if grabbedObj is RigidBody2D:
+		if (global_position - grabbedObj.global_position).length() > 60:
+			onGrabStop()
+		else:
+			grabbedObj.collision_layer = 2
+			grabbedObj.apply_force((hands.global_position - grabbedObj.global_position) * grabForce / grabbedObj.mass)
+
+func onGrabStop():
+	if grabbedObj is RigidBody2D:
+		if grabbedObj.is_in_group(\"Item\"):
+			grabbedObj.onThrowStop()
+		grabbedObj.collision_layer = 1
+		grabbedObj = null
+
 func _on_hit_timer_timeout():
 	hit = false
+	
+func handleCollision():
+	var col = get_last_slide_collision()
+	var obj = col.get_collider()
+	if \"Enemy\" in obj.name:
+		if not hit:
+			hit = true
+			health -= 10
+			progress_bar.value = health
+			if progress_bar.value < 1:
+				get_tree().change_scene_to_file(\"res://Levels/MainMenu.tscn\")
+				hit_timer.start()
+	elif obj is RigidBody2D:
+			obj.apply_force(col.get_normal() * -pushForce / obj.mass)
+
+
 
 func drop():
 	hand.drop(hands.global_transform, Vector2(1, 0).rotated(sprite.global_rotation))
@@ -95,12 +113,6 @@ func equip():
 			hands.add_child(item)
 			item.onEquip()
 			hand = item
-
-func _on_pick_up_range_body_entered(body):
-	body.inRange = true
-
-func _on_pick_up_range_body_exited(body):
-	body.inRange = false
 "
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_axj04"]
@@ -183,3 +195,5 @@ theme_override_styles/background = SubResource("StyleBoxFlat_wp2fi")
 theme_override_styles/fill = SubResource("StyleBoxFlat_ys33i")
 value = 100.0
 show_percentage = false
+
+[node name="HitTimer" type="Timer" parent="."]
