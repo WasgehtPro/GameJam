@@ -1,0 +1,91 @@
+[gd_scene load_steps=8 format=3 uid="uid://vbyrgmete8v4"]
+
+[ext_resource type="Texture2D" uid="uid://cpcx7ik7viht2" path="res://Items/Flashlight/Flashlight.png" id="1_17osi"]
+[ext_resource type="Texture2D" uid="uid://e133i8wlia5p" path="res://Items/Flashlight/FlashlightGlow.png" id="2_3gmj4"]
+[ext_resource type="PackedScene" uid="uid://bnm0iuwq01df3" path="res://Items/ItemManager.tscn" id="3_ff28t"]
+
+[sub_resource type="GDScript" id="GDScript_677ox"]
+script/source = "extends RigidBody2D
+
+@export var durability = 100
+@export var emptyTime = 15
+var drain
+
+@onready var drainTimer = $DrainTimer
+
+var toggle = false
+
+func _ready():
+	drain = durability / emptyTime
+
+func use():
+	if toggle:
+		toggle = false
+		drainTimer.stop()
+	else:
+		toggle = true
+		drainTimer.start()
+
+func onTimeout():
+	durability -= drain
+
+func transfer():
+	return [durability, drain]
+"
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_myyjh"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_17osi")
+}],
+"loop": false,
+"name": &"default",
+"speed": 0.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_3gmj4")
+}],
+"loop": false,
+"name": &"glow",
+"speed": 0.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4od37"]
+size = Vector2(12, 8)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qt5o8"]
+size = Vector2(14, 10)
+
+[node name="Flashlight" type="RigidBody2D" groups=["Item", "Movable"]]
+texture_filter = 1
+gravity_scale = 0.0
+script = SubResource("GDScript_677ox")
+
+[node name="ItemManager" parent="." node_paths=PackedStringArray("root", "throwTimer", "glowBox", "collision", "sprite") instance=ExtResource("3_ff28t")]
+root = NodePath("..")
+bluePrintPath = "res://Items/Flashlight/Flashlight.tscn"
+throwTimer = NodePath("../ThrowTimer")
+glowBox = NodePath("../GlowBox")
+collision = NodePath("../Collision")
+sprite = NodePath("../Sprite")
+damageSecondary = 5.0
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_myyjh")
+autoplay = "default"
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_4od37")
+
+[node name="GlowBox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GlowBox"]
+shape = SubResource("RectangleShape2D_qt5o8")
+
+[node name="ThrowTimer" type="Timer" parent="."]
+
+[node name="DrainTimer" type="Timer" parent="."]
+
+[connection signal="timeout" from="DrainTimer" to="." method="onTimeout"]

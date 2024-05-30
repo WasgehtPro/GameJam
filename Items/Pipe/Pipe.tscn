@@ -1,13 +1,45 @@
-[gd_scene load_steps=7 format=3 uid="uid://ctg0lfhxs0urf"]
+[gd_scene load_steps=9 format=3 uid="uid://br01bdjj8aa38"]
 
-[ext_resource type="Script" path="res://Items/Pipe/pipe.gd" id="1_eue07"]
 [ext_resource type="Texture2D" uid="uid://be72pl6tf2udi" path="res://Items/Pipe/Pipe.png" id="2_if7w7"]
+[ext_resource type="PackedScene" uid="uid://bnm0iuwq01df3" path="res://Items/ItemManager.tscn" id="3_qnwg0"]
 [ext_resource type="Texture2D" uid="uid://ou37ulo4tko1" path="res://Items/Pipe/PipeGlow.png" id="3_xjrcj"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_5aayv"]
-size = Vector2(13, 24)
+[sub_resource type="GDScript" id="GDScript_nbs2y"]
+script/source = "extends RigidBody2D
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_w2gif"]
+@onready var hitBox = $HitBoxArea/HitBox
+@export var damage = 20
+
+@export var durability = 100
+@export var drain = 10
+
+var canHit = true
+
+func use():
+	if canHit:
+		durability -= drain
+		print(durability)
+		canHit = false
+		hitBox.disabled = false
+		var swing1 = create_tween()
+		swing1.tween_property(self, \"rotation\", deg_to_rad(90), .05)
+		await swing1.finished
+		var swing2 = create_tween()
+		swing2.tween_property(self, \"rotation\", deg_to_rad(0), .5)
+		await swing2.finished
+		hitBox.disabled = true
+		if durability <= 0:
+			queue_free()
+		canHit = true
+
+func transfer():
+	return [durability, drain]
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hpdgk"]
+size = Vector2(12, 22)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jrous"]
 animations = [{
 "frames": [{
 "duration": 1.0,
@@ -22,46 +54,52 @@ animations = [{
 "texture": ExtResource("3_xjrcj")
 }],
 "loop": false,
-"name": &"highlighted",
+"name": &"glow",
 "speed": 0.0
 }]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_g50ls"]
-size = Vector2(13, 9)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jnfiy"]
+size = Vector2(14, 9)
 
-[node name="Pipe" type="RigidBody2D" groups=["Item"]]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rps0i"]
+size = Vector2(14, 24)
+
+[node name="Pipe" type="RigidBody2D" groups=["Item", "Movable"]]
 texture_filter = 1
 gravity_scale = 0.0
 linear_damp = 1.0
-script = ExtResource("1_eue07")
+script = SubResource("GDScript_nbs2y")
+durability = 20
+
+[node name="ItemManager" parent="." node_paths=PackedStringArray("root", "throwTimer", "hitBoxArea", "hitBox", "glowBox", "collision", "sprite") instance=ExtResource("3_qnwg0")]
+root = NodePath("..")
+bluePrintPath = "res://Items/Pipe/Pipe.tscn"
+throwTimer = NodePath("../ThrowTimer")
+hitBoxArea = NodePath("../HitBoxArea")
+hitBox = NodePath("../HitBoxArea/HitBox")
+glowBox = NodePath("../GlowBox")
+collision = NodePath("../Collision")
+sprite = NodePath("../Sprite")
+damagePrimary = 20.0
+damageSecondary = 10.0
 
 [node name="Collision" type="CollisionShape2D" parent="."]
-position = Vector2(-0.5, 0)
-shape = SubResource("RectangleShape2D_5aayv")
+shape = SubResource("RectangleShape2D_hpdgk")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-sprite_frames = SubResource("SpriteFrames_w2gif")
+sprite_frames = SubResource("SpriteFrames_jrous")
 autoplay = "default"
 
-[node name="HighlightRange" type="Area2D" parent="."]
+[node name="ThrowTimer" type="Timer" parent="."]
 
-[node name="HighlightCollision" type="CollisionShape2D" parent="HighlightRange"]
-position = Vector2(-0.5, 0)
-shape = SubResource("RectangleShape2D_5aayv")
+[node name="HitBoxArea" type="Area2D" parent="."]
 
-[node name="HitBox" type="Area2D" parent="."]
-
-[node name="MainCollision" type="CollisionShape2D" parent="HitBox"]
+[node name="HitBox" type="CollisionShape2D" parent="HitBoxArea"]
 position = Vector2(0, -7.5)
-shape = SubResource("RectangleShape2D_g50ls")
+shape = SubResource("RectangleShape2D_jnfiy")
 disabled = true
 
-[node name="ThrowTimer" type="Timer" parent="."]
-wait_time = 0.2
+[node name="GlowBox" type="Area2D" parent="."]
 
-[connection signal="mouse_shape_entered" from="." to="." method="_on_mouse_shape_entered"]
-[connection signal="body_entered" from="HighlightRange" to="." method="_on_highlight_range_body_entered"]
-[connection signal="mouse_entered" from="HighlightRange" to="." method="_on_highlight_range_mouse_entered"]
-[connection signal="mouse_exited" from="HighlightRange" to="." method="_on_highlight_range_mouse_exited"]
-[connection signal="body_entered" from="HitBox" to="." method="_on_area_2d_body_entered"]
-[connection signal="timeout" from="ThrowTimer" to="." method="_on_throw_timer_timeout"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GlowBox"]
+shape = SubResource("RectangleShape2D_rps0i")

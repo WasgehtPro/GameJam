@@ -11,7 +11,7 @@ size = Vector2(24, 17)
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_empws"]
 light_mode = 2
 
-[node name="Table" type="RigidBody2D"]
+[node name="Table" type="RigidBody2D" groups=["Movable"]]
 y_sort_enabled = true
 mass = 5.17
 physics_material_override = SubResource("PhysicsMaterial_73ohr")

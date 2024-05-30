@@ -7,8 +7,6 @@
 [sub_resource type="GDScript" id="GDScript_5151p"]
 script/source = "extends CharacterBody2D
 
-class_name  player1
-
 var grabForce = 50
 var pushForce = 1000
 var speed = 75.0
@@ -16,7 +14,6 @@ var slowDown = speed * 0.2
 var grabbedObj
 var hit = false
 var health = 100
-
 var hand
 
 @onready var pickUpRange = $PickUpRange
@@ -25,11 +22,6 @@ var hand
 @onready var hands = $Sprite2D/Hands
 @onready var grabRange: RayCast2D = $Sprite2D/GrabRange
 @onready var progress_bar = $Control/ProgressBar
-
-# Get the gravity from the project settings to be synced with RigidBody nodes.
-var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
-const PIPE = preload(\"res://Items/Pipe/pipe.tscn\")
-
 
 func _physics_process(delta):
 	
@@ -40,7 +32,7 @@ func _physics_process(delta):
 			drop()
 		else:
 			equip()
-		
+	
 	if Input.is_action_just_pressed(\"RMB\") and hand:
 		hand.use()
 		
@@ -67,23 +59,20 @@ func onGrab():
 		grabbedObj = grabRange.get_collider()
 		if grabbedObj:
 			if grabbedObj.is_in_group(\"Item\"):
-				grabbedObj.onThrowStart()
-	if grabbedObj is RigidBody2D:
+				grabbedObj.get_child(0).onThrowStart()
+	if grabbedObj is RigidBody2D and grabbedObj.is_in_group(\"Movable\"):
 		if (global_position - grabbedObj.global_position).length() > 60:
 			onGrabStop()
+			grabbedObj = null
 		else:
-			grabbedObj.collision_layer = 2
 			grabbedObj.apply_force((hands.global_position - grabbedObj.global_position) * grabForce / grabbedObj.mass)
 
 func onGrabStop():
 	if grabbedObj is RigidBody2D:
 		if grabbedObj.is_in_group(\"Item\"):
-			grabbedObj.onThrowStop()
+			grabbedObj.get_child(0).onThrowStop()
 		grabbedObj.collision_layer = 1
 		grabbedObj = null
-
-func _on_hit_timer_timeout():
-	hit = false
 	
 func handleCollision():
 	var col = get_last_slide_collision()
@@ -93,26 +82,29 @@ func handleCollision():
 			hit = true
 			health -= 10
 			progress_bar.value = health
+			hit_timer.start()
 			if progress_bar.value < 1:
 				get_tree().change_scene_to_file(\"res://Levels/MainMenu.tscn\")
-				hit_timer.start()
 	elif obj is RigidBody2D:
 			obj.apply_force(col.get_normal() * -pushForce / obj.mass)
 
 
 
 func drop():
-	hand.drop(hands.global_transform, Vector2(1, 0).rotated(sprite.global_rotation))
+	hand.get_child(0).drop(hands.global_transform, Vector2(1, 0).rotated(sprite.global_rotation))
 	hand = null
 
 func equip():
-	var obj = grabRange.get_collider()
+	var obj = grabRange.get_collider() as RigidBody2D
 	if obj:
 		if obj.is_in_group(\"Item\"):
-			var item = obj.pickUp()
-			hands.add_child(item)
-			item.onEquip()
-			hand = item
+			hand = obj.get_child(0).pickUp()
+			hands.add_child(hand)
+			hand.get_child(0).onEquip()
+
+
+func _on_hit_timer_timeout():
+	hit = false
 "
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_axj04"]
@@ -197,3 +189,6 @@ value = 100.0
 show_percentage = false
 
 [node name="HitTimer" type="Timer" parent="."]
+wait_time = 0.2
+
+[connection signal="timeout" from="HitTimer" to="." method="_on_hit_timer_timeout"]

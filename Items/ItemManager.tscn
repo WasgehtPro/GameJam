@@ -1,0 +1,86 @@
+[gd_scene load_steps=2 format=3 uid="uid://bnm0iuwq01df3"]
+
+[sub_resource type="GDScript" id="GDScript_wgknj"]
+script/source = "extends Node
+
+@export var root : RigidBody2D
+@export var bluePrintPath : String
+var bluePrint : PackedScene
+@export var throwTimer : Timer
+@export var hitBoxArea : Area2D
+@export var hitBox : CollisionShape2D
+@export var glowBox : Area2D
+@export var collision : CollisionShape2D
+@export var sprite : AnimatedSprite2D
+@export var damagePrimary : float
+@export var damageSecondary : float
+
+var equipped = false
+var flying = false
+var canHit = true
+
+func _ready():
+	bluePrint = load(bluePrintPath)
+	throwTimer.timeout.connect(_on_throw_timer_timeout)
+	glowBox.mouse_entered.connect(glow)
+	glowBox.mouse_exited.connect(unGlow)
+	glowBox.body_entered.connect(hitSecondary)
+	if hitBoxArea:
+		hitBoxArea.body_entered.connect(hitPrimary)
+
+func glow():
+	if not equipped:
+		sprite.play(\"glow\")
+
+func unGlow():
+	if not equipped:
+		sprite.play(\"default\")
+
+func hitPrimary(body):
+	if body.is_in_group(\"Enemy\"):
+		body.hit(damagePrimary)
+
+func hitSecondary(body):
+	if body.is_in_group(\"Enemy\") and flying:
+		body.hit(damageSecondary)
+
+func drop(transform, dir):
+	root.queue_free()
+	var newItem = bluePrint.instantiate()
+	var durDrain = root.transfer()
+	newItem.durability = durDrain[0]
+	newItem.drain = durDrain[1]
+	newItem.global_transform = transform
+	newItem.apply_force(dir * 2000)
+	root.get_tree().get_current_scene().add_child(newItem)
+	
+func onEquip():
+	collision.disabled = true
+	sprite.play(\"glow\")
+	equipped = true
+
+func pickUp():
+	root.queue_free()
+	var newItem = bluePrint.instantiate()
+	var durDrain = root.transfer()
+	newItem.durability = durDrain[0]
+	newItem.drain = durDrain[1]
+	return newItem
+
+func _on_throw_timer_timeout():
+	if root.linear_velocity.length() < 30:
+		hitBox.disabled = true
+		flying = false
+		throwTimer.stop()
+
+func onThrowStart():
+	if hitBox:
+		hitBox.disabled = false
+
+func onThrowStop():
+	flying = true
+	throwTimer.start()
+"
+
+[node name="ItemManager" type="Node"]
+script = SubResource("GDScript_wgknj")
