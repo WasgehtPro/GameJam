@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://dab1m1g8q4bre"]
+
+[ext_resource type="Texture2D" uid="uid://dfymbn2opi1db" path="res://Objects/Vase/Vase.png" id="1_8r27v"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_j78ns"]
+size = Vector2(8, 8)
+
+[node name="Vase" type="RigidBody2D" groups=["Movable"]]
+texture_filter = 1
+mass = 0.5
+gravity_scale = 0.0
+linear_damp = 3.0
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("1_8r27v")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_j78ns")

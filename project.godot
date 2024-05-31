@@ -61,3 +61,4 @@ Equip={
 [layer_names]
 
 2d_render/layer_1="Always"
+2d_render/layer_2="Invisible"

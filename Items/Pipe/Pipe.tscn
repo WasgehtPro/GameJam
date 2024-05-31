@@ -11,14 +11,13 @@ light_mode = 2
 script/source = "extends RigidBody2D
 
 @onready var hitBox = $HitBoxArea/HitBox
-@export var damage = 20
 
 @export var durability = 100
 @export var drain = 10
 
 var canHit = true
 
-func use():
+func use(player):
 	if canHit:
 		durability -= drain
 		canHit = false
@@ -32,6 +31,8 @@ func use():
 		hitBox.disabled = true
 		if durability <= 0:
 			queue_free()
+			if player:
+				player.hand = null
 		canHit = true
 
 func transfer():
@@ -86,6 +87,7 @@ collision = NodePath("../Collision")
 sprite = NodePath("../Sprite")
 damagePrimary = 20.0
 damageSecondary = 10.0
+slowEffect = 5.0
 
 [node name="Collision" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_hpdgk")

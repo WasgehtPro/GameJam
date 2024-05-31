@@ -1,0 +1,78 @@
+[gd_scene load_steps=9 format=3 uid="uid://fh0k847nmdvp"]
+
+[ext_resource type="PackedScene" uid="uid://bnm0iuwq01df3" path="res://Items/ItemManager.tscn" id="1_cvpi0"]
+[ext_resource type="Texture2D" uid="uid://b5dpmsn6gfcji" path="res://Items/Battery/Battery.png" id="2_cjise"]
+[ext_resource type="Texture2D" uid="uid://ddr56nqo7xtbe" path="res://Items/Battery/BatteryGlow.png" id="3_4y06x"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_ex14u"]
+light_mode = 2
+
+[sub_resource type="GDScript" id="GDScript_vv3fk"]
+script/source = "extends RigidBody2D
+
+func use(player):
+	if player:
+		if player.batteries < 3:
+			player.batteries += 1
+			player.refreshBattery()
+			player.hand = null
+			queue_free()
+		else:
+			player.drop()
+"
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_o4ehx"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_cjise")
+}],
+"loop": false,
+"name": &"default",
+"speed": 0.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_4y06x")
+}],
+"loop": false,
+"name": &"glow",
+"speed": 0.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_35dyd"]
+size = Vector2(10, 6)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_urjum"]
+size = Vector2(12, 8)
+
+[node name="Battery" type="RigidBody2D" groups=["Item", "Movable"]]
+texture_filter = 1
+material = SubResource("CanvasItemMaterial_ex14u")
+gravity_scale = 0.0
+linear_damp = 1.0
+script = SubResource("GDScript_vv3fk")
+
+[node name="ItemManager" parent="." node_paths=PackedStringArray("root", "throwTimer", "glowBox", "collision", "sprite") instance=ExtResource("1_cvpi0")]
+root = NodePath("..")
+bluePrintPath = "res://Items/Battery/Battery.tscn"
+throwTimer = NodePath("../ThrowTimer")
+glowBox = NodePath("../GlowBox")
+collision = NodePath("../Collision")
+sprite = NodePath("../Sprite")
+damageSecondary = 3.0
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+use_parent_material = true
+sprite_frames = SubResource("SpriteFrames_o4ehx")
+autoplay = "default"
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_35dyd")
+
+[node name="ThrowTimer" type="Timer" parent="."]
+
+[node name="GlowBox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GlowBox"]
+shape = SubResource("RectangleShape2D_urjum")

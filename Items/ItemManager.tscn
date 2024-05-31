@@ -14,6 +14,7 @@ var bluePrint : PackedScene
 @export var sprite : AnimatedSprite2D
 @export var damagePrimary : float
 @export var damageSecondary : float
+@export var slowEffect : float
 
 var equipped = false
 var flying = false
@@ -38,18 +39,17 @@ func unGlow():
 
 func hitPrimary(body):
 	if body.is_in_group(\"Enemy\"):
-		body.hit(damagePrimary)
-
+		body.hit(damagePrimary, slowEffect)
+		root.use(null)
+		
 func hitSecondary(body):
 	if body.is_in_group(\"Enemy\") and flying:
-		body.hit(damageSecondary)
+		body.hit(damageSecondary, 0)
+		root.use(null)
 
 func drop(transform, dir):
 	root.queue_free()
-	var newItem = bluePrint.instantiate()
-	var durDrain = root.transfer()
-	newItem.durability = durDrain[0]
-	newItem.drain = durDrain[1]
+	var newItem = getCopy()
 	newItem.global_transform = transform
 	newItem.apply_force(dir * 2000)
 	root.get_tree().get_current_scene().add_child(newItem)
@@ -61,15 +61,12 @@ func onEquip():
 
 func pickUp():
 	root.queue_free()
-	var newItem = bluePrint.instantiate()
-	var durDrain = root.transfer()
-	newItem.durability = durDrain[0]
-	newItem.drain = durDrain[1]
-	return newItem
+	return getCopy()
 
 func _on_throw_timer_timeout():
 	if root.linear_velocity.length() < 30:
-		hitBox.disabled = true
+		if hitBox:
+			hitBox.disabled = true
 		flying = false
 		throwTimer.stop()
 
@@ -80,6 +77,15 @@ func onThrowStart():
 func onThrowStop():
 	flying = true
 	throwTimer.start()
+
+func getCopy():
+	var newItem = bluePrint.instantiate()
+	if root.has_method(\"transfer\"):
+		var durDrain = root.transfer()
+		newItem.durability = durDrain[0]
+		if durDrain[1]:
+			newItem.drain = durDrain[1]
+	return newItem
 "
 
 [node name="ItemManager" type="Node"]

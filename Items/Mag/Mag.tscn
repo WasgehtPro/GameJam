@@ -1,0 +1,77 @@
+[gd_scene load_steps=9 format=3 uid="uid://dm3w05kbkebq"]
+
+[ext_resource type="PackedScene" uid="uid://bnm0iuwq01df3" path="res://Items/ItemManager.tscn" id="1_1qeos"]
+[ext_resource type="Texture2D" uid="uid://ds51oh3pp2pvf" path="res://Items/Mag/Mag.png" id="2_g0ece"]
+[ext_resource type="Texture2D" uid="uid://dmjmdks4mqjnr" path="res://Items/Mag/MagGlow.png" id="3_h8xj7"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_y4hii"]
+light_mode = 2
+
+[sub_resource type="GDScript" id="GDScript_vv3fk"]
+script/source = "extends RigidBody2D
+
+@export var durability = 10
+
+func use(player):
+	if player:
+		player.ammo += durability
+		player.hand = null
+		player.checkAmmo()
+		queue_free()
+"
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_o4ehx"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_g0ece")
+}],
+"loop": false,
+"name": &"default",
+"speed": 0.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_h8xj7")
+}],
+"loop": false,
+"name": &"glow",
+"speed": 0.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_35dyd"]
+size = Vector2(12, 8)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_urjum"]
+size = Vector2(14, 10)
+
+[node name="Mag" type="RigidBody2D" groups=["Item", "Movable"]]
+texture_filter = 1
+material = SubResource("CanvasItemMaterial_y4hii")
+gravity_scale = 0.0
+linear_damp = 1.0
+script = SubResource("GDScript_vv3fk")
+
+[node name="ItemManager" parent="." node_paths=PackedStringArray("root", "throwTimer", "glowBox", "collision", "sprite") instance=ExtResource("1_1qeos")]
+root = NodePath("..")
+bluePrintPath = "res://Items/Mag/Mag.tscn"
+throwTimer = NodePath("../ThrowTimer")
+glowBox = NodePath("../GlowBox")
+collision = NodePath("../Collision")
+sprite = NodePath("../Sprite")
+damageSecondary = 3.0
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+use_parent_material = true
+sprite_frames = SubResource("SpriteFrames_o4ehx")
+autoplay = "default"
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_35dyd")
+
+[node name="ThrowTimer" type="Timer" parent="."]
+
+[node name="GlowBox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GlowBox"]
+shape = SubResource("RectangleShape2D_urjum")

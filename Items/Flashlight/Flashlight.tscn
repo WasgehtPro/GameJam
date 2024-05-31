@@ -12,31 +12,39 @@ light_mode = 2
 script/source = "extends RigidBody2D
 
 @export var durability = 100
-@export var emptyTime = 15
+@export var emptyTime = 3
 var drain
+var player
 
 @onready var drainTimer = $DrainTimer
 @onready var light1 = $PointLight2D3
 @onready var light2 = $PointLight2D4
 
-var toggle = false
+var deb = true
 
 func _ready():
 	drain = durability / emptyTime
 
-func use():
-	if toggle or durability <= 0:
-		toggle = false
-		drainTimer.stop()
-		var flicker1 = create_tween()
-		var flicker2 = create_tween()
-		flicker1.tween_property(light1, \"energy\", 0, 1)
-		flicker2.tween_property(light2, \"energy\", 0.5, 1)
-		await flicker2.finished
-		light1.enabled = false
-		light2.enabled = false
+func use(newPlayer):
+	player = newPlayer
+	if not deb:
+		disable()
 	elif durability > 0:
-		toggle = true
+		enable()
+	else:
+		charge()
+
+func onTimeout():
+	durability -= drain
+	if durability <= 0:
+		disable()
+
+func transfer():
+	return [durability, drain]
+
+func enable():
+	if deb and durability > 0:
+		deb = false
 		drainTimer.start()
 		light1.enabled = true
 		light2.enabled = true
@@ -45,14 +53,24 @@ func use():
 		flicker1.tween_property(light2, \"energy\", 1, 1)
 		flicker2.tween_property(light1, \"energy\", 1, 1)
 		await flicker2.finished
+		
+func disable():
+	drainTimer.stop()
+	var flicker1 = create_tween()
+	var flicker2 = create_tween()
+	flicker1.tween_property(light1, \"energy\", 0, 1)
+	flicker2.tween_property(light2, \"energy\", 0.5, 1)
+	await flicker2.finished
+	light1.enabled = false
+	light2.enabled = false
+	deb = true
 
-func onTimeout():
-	durability -= drain
-	if durability <= 0:
-		use()
-
-func transfer():
-	return [durability, drain]
+func charge():
+	if player:
+		if player.batteries > 0:
+				player.batteries -= 1
+				player.refreshBattery()
+				durability = drain * emptyTime
 "
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_myyjh"]

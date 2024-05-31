@@ -15,6 +15,9 @@ var grabbedObj
 var hit = false
 var health = 100
 var hand
+var batteries = 0
+var maxAmmo = 10
+var ammo = 0
 
 @onready var pickUpRange = $PickUpRange
 @onready var hit_timer = $HitTimer
@@ -22,9 +25,11 @@ var hand
 @onready var hands = $Sprite2D/Hands
 @onready var grabRange: RayCast2D = $Sprite2D/GrabRange
 @onready var progress_bar = $Control/ProgressBar
+@onready var batteryContainer = $Batteries
+const BATTERY_IMG = preload(\"res://UI/BatteryImg.tscn\")
+const BULLET = preload(\"res://Items/Bullet/Bullet.tscn\")
 
 func _physics_process(delta):
-	
 	sprite.look_at(get_global_mouse_position())
 	
 	if Input.is_action_just_pressed(\"Equip\"):
@@ -34,7 +39,7 @@ func _physics_process(delta):
 			equip()
 	
 	if Input.is_action_just_pressed(\"RMB\") and hand:
-		hand.use()
+		hand.use(self)
 		
 	if Input.is_action_pressed(\"Grab\"):
 		onGrab()
@@ -91,7 +96,8 @@ func handleCollision():
 
 
 func drop():
-	hand.get_child(0).drop(hands.global_transform, Vector2(1, 0).rotated(sprite.global_rotation))
+	if is_instance_valid(hand):
+		hand.get_child(0).drop(hands.global_transform, Vector2(1, 0).rotated(sprite.global_rotation))
 	hand = null
 
 func equip():
@@ -105,6 +111,26 @@ func equip():
 
 func _on_hit_timer_timeout():
 	hit = false
+
+func refreshBattery():
+	for i in batteryContainer.get_children():
+		i.queue_free()
+	for i in batteries:
+		var display = BATTERY_IMG.instantiate()
+		display.position = Vector2(-i * 5, 0)
+		batteryContainer.add_child(display)
+
+func checkAmmo():
+	if ammo > maxAmmo:
+		var vomit = ammo - maxAmmo
+		ammo = maxAmmo
+		for i in vomit:
+			var bullet = BULLET.instantiate()
+			bullet.position = hands.global_position
+			bullet.angular_velocity = randi_range(-10, 10)
+			bullet.apply_force(Vector2(randi_range(-10, 10), randi_range(-10, 10)) * 2000)
+			bullet.collision_layer = 2
+			get_tree().get_root().add_child(bullet)
 "
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_axj04"]
@@ -153,7 +179,6 @@ texture_scale = 0.5
 light_mask = 2
 visibility_layer = 2
 rotation = -1.5708
-energy = 0.2
 blend_mode = 2
 range_item_cull_mask = 2
 shadow_enabled = true
@@ -168,8 +193,7 @@ target_position = Vector2(30, 0)
 position = Vector2(30, 0)
 
 [node name="Camera2D" type="Camera2D" parent="."]
-rotation = -1.5708
-zoom = Vector2(2, 2)
+zoom = Vector2(3, 3)
 position_smoothing_enabled = true
 
 [node name="Control" type="Control" parent="."]
@@ -194,5 +218,11 @@ show_percentage = false
 
 [node name="HitTimer" type="Timer" parent="."]
 wait_time = 0.2
+
+[node name="Batteries" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_top = 16.0
+offset_bottom = 16.0
 
 [connection signal="timeout" from="HitTimer" to="." method="_on_hit_timer_timeout"]

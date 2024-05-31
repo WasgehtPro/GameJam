@@ -1,0 +1,104 @@
+[gd_scene load_steps=10 format=3 uid="uid://dmaq6332dv3vo"]
+
+[ext_resource type="PackedScene" uid="uid://bnm0iuwq01df3" path="res://Items/ItemManager.tscn" id="1_i0evr"]
+[ext_resource type="Texture2D" uid="uid://b7f3vxy1u577" path="res://Items/Bullet/Bullet.png" id="2_nw8mx"]
+[ext_resource type="Texture2D" uid="uid://di6vokfm7ws15" path="res://Items/Bullet/BulletGlow.png" id="3_ydsm6"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_y4hii"]
+light_mode = 2
+
+[sub_resource type="GDScript" id="GDScript_vv3fk"]
+script/source = "extends RigidBody2D
+
+@onready var vomit_timer = $VomitTimer
+
+func fly():
+	linear_velocity = Vector2(1, 0).rotated(global_rotation) * 400
+
+func use(player):
+	if player:
+		player.ammo += 1
+		player.hand = null
+		player.checkAmmo()
+		queue_free()
+	else:
+		queue_free()
+
+func _on_vomit_timer_timeout():
+	self.collision_layer = 1
+"
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_o4ehx"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_nw8mx")
+}],
+"loop": false,
+"name": &"default",
+"speed": 0.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_ydsm6")
+}],
+"loop": false,
+"name": &"glow",
+"speed": 0.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_35dyd"]
+size = Vector2(12, 6)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_urjum"]
+size = Vector2(14, 8)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ebyhc"]
+size = Vector2(7, 6)
+
+[node name="Bullet" type="RigidBody2D" groups=["Item", "Movable"]]
+texture_filter = 1
+material = SubResource("CanvasItemMaterial_y4hii")
+gravity_scale = 0.0
+linear_damp = 1.0
+script = SubResource("GDScript_vv3fk")
+
+[node name="ItemManager" parent="." node_paths=PackedStringArray("root", "throwTimer", "hitBoxArea", "hitBox", "glowBox", "collision", "sprite") instance=ExtResource("1_i0evr")]
+root = NodePath("..")
+bluePrintPath = "res://Items/Bullet/Bullet.tscn"
+throwTimer = NodePath("../ThrowTimer")
+hitBoxArea = NodePath("../HitboxArea")
+hitBox = NodePath("../HitboxArea/Hitbox")
+glowBox = NodePath("../GlowBox")
+collision = NodePath("../Collision")
+sprite = NodePath("../Sprite")
+damagePrimary = 20.0
+damageSecondary = 3.0
+slowEffect = 10.0
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_o4ehx")
+autoplay = "default"
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_35dyd")
+
+[node name="ThrowTimer" type="Timer" parent="."]
+
+[node name="GlowBox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GlowBox"]
+shape = SubResource("RectangleShape2D_urjum")
+
+[node name="HitboxArea" type="Area2D" parent="."]
+
+[node name="Hitbox" type="CollisionShape2D" parent="HitboxArea"]
+position = Vector2(3.5, 0)
+shape = SubResource("RectangleShape2D_ebyhc")
+
+[node name="VomitTimer" type="Timer" parent="."]
+wait_time = 0.2
+one_shot = true
+autostart = true
+
+[connection signal="timeout" from="VomitTimer" to="." method="_on_vomit_timer_timeout"]

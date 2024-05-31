@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://kf7e54q55uty"]
+
+[ext_resource type="Texture2D" uid="uid://b5dpmsn6gfcji" path="res://Items/Battery/Battery.png" id="1_5ny5g"]
+
+[node name="BatteryImg" type="TextureRect"]
+texture_filter = 1
+offset_right = 13.0
+offset_bottom = 9.0
+rotation = -1.0472
+texture = ExtResource("1_5ny5g")

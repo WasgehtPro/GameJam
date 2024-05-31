@@ -7,7 +7,7 @@ extends CharacterBody2D
 @onready var progress_bar = $Control/ProgressBar
 
 var speed = 20
-var pushForce = 300
+var pushForce = 500
 var health = 100
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -26,7 +26,9 @@ func _physics_process(delta):
 func _on_timer_timeout():
 	navAgent.target_position = player.global_position
 
-func hit(damage):
+func hit(damage, slowEffect):
+	if (speed - slowEffect) >= 0:
+		speed -= slowEffect
 	health -= damage
 	progress_bar.value = health
 	if progress_bar.value < 1:

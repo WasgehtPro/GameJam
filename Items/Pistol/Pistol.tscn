@@ -1,0 +1,94 @@
+[gd_scene load_steps=9 format=3 uid="uid://crgo1n2h5osi4"]
+
+[ext_resource type="PackedScene" uid="uid://bnm0iuwq01df3" path="res://Items/ItemManager.tscn" id="2_6rmpa"]
+[ext_resource type="Texture2D" uid="uid://b753sk23b347n" path="res://Items/Pistol/Gun.png" id="3_1car1"]
+[ext_resource type="Texture2D" uid="uid://3oxwliyo5h6y" path="res://Items/Pistol/GunGlow.png" id="4_p4vrv"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_ex14u"]
+light_mode = 2
+
+[sub_resource type="GDScript" id="GDScript_mlfkb"]
+script/source = "extends RigidBody2D
+
+var maxAmmo = 10
+@export var durability = 2
+
+const BULLET = preload(\"res://Items/Bullet/Bullet.tscn\")
+
+func use(player):
+	if durability > 0:
+		durability -= 1
+		var bullet = BULLET.instantiate()
+		bullet.global_transform = global_transform
+		bullet.fly()
+		get_tree().get_root().add_child(bullet)
+		if player:
+			var refill = player.ammo
+			if refill > maxAmmo:
+				player.ammo -= maxAmmo
+				durability = maxAmmo
+			else:
+				durability = refill
+				player.ammo = 0
+			player.checkAmmo()
+
+func transfer():
+	return durability
+"
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_o4ehx"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_1car1")
+}],
+"loop": false,
+"name": &"default",
+"speed": 0.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_p4vrv")
+}],
+"loop": false,
+"name": &"glow",
+"speed": 0.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_35dyd"]
+size = Vector2(22, 8)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_urjum"]
+size = Vector2(24, 10)
+
+[node name="Pistol" type="RigidBody2D" groups=["Item", "Movable"]]
+texture_filter = 1
+material = SubResource("CanvasItemMaterial_ex14u")
+gravity_scale = 0.0
+linear_damp = 1.0
+script = SubResource("GDScript_mlfkb")
+
+[node name="ItemManager" parent="." node_paths=PackedStringArray("root", "throwTimer", "glowBox", "collision", "sprite") instance=ExtResource("2_6rmpa")]
+root = NodePath("..")
+bluePrintPath = "res://Items/Pistol/Pistol.tscn"
+throwTimer = NodePath("../ThrowTimer")
+glowBox = NodePath("../GlowBox")
+collision = NodePath("../Collision")
+sprite = NodePath("../Sprite")
+damageSecondary = 10.0
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+use_parent_material = true
+sprite_frames = SubResource("SpriteFrames_o4ehx")
+animation = &"glow"
+autoplay = "default"
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_35dyd")
+
+[node name="ThrowTimer" type="Timer" parent="."]
+
+[node name="GlowBox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GlowBox"]
+shape = SubResource("RectangleShape2D_urjum")
