@@ -7,7 +7,7 @@ extends CharacterBody2D
 @onready var progress_bar = $Control/ProgressBar
 
 var speed = 20
-var pushForce = 200
+var pushForce = 300
 var health = 100
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

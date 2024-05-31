@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bdssdhrh30sv8"
-path="res://.godot/imported/Cone.png-f0cf16f9661d4a3bd0081eb581910398.ctex"
+uid="uid://71oqgayj5fa5"
+path="res://.godot/imported/StandartCone.png-202ca388e485169149a3bfb6d93bcdcf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://LightMasks/Cone.png"
-dest_files=["res://.godot/imported/Cone.png-f0cf16f9661d4a3bd0081eb581910398.ctex"]
+source_file="res://LightMasks/StandartCone.png"
+dest_files=["res://.godot/imported/StandartCone.png-202ca388e485169149a3bfb6d93bcdcf.ctex"]
 
 [params]
 

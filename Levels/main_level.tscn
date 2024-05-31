@@ -2342,4 +2342,4 @@ position = Vector2(111, 80)
 player = NodePath("../Player")
 
 [node name="Flashlight" parent="." instance=ExtResource("9_bxbuo")]
-position = Vector2(72, 89)
+position = Vector2(79, 85)

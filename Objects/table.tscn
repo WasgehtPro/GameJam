@@ -2,17 +2,19 @@
 
 [ext_resource type="Texture2D" uid="uid://dwcrftwp3fxpl" path="res://furniture9.png" id="1_saxc0"]
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_mtm73"]
+light_mode = 2
+
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_73ohr"]
 friction = 0.5
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_csh1y"]
 size = Vector2(24, 17)
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_empws"]
-light_mode = 2
-
 [node name="Table" type="RigidBody2D" groups=["Movable"]]
+light_mask = 2
 y_sort_enabled = true
+material = SubResource("CanvasItemMaterial_mtm73")
 mass = 5.17
 physics_material_override = SubResource("PhysicsMaterial_73ohr")
 gravity_scale = 0.0
@@ -24,7 +26,6 @@ position = Vector2(0, 3.5)
 shape = SubResource("RectangleShape2D_csh1y")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-light_mask = 2
 texture_filter = 1
-material = SubResource("CanvasItemMaterial_empws")
+use_parent_material = true
 texture = ExtResource("1_saxc0")

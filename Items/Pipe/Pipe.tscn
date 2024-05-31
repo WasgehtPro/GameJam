@@ -1,8 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://br01bdjj8aa38"]
+[gd_scene load_steps=10 format=3 uid="uid://br01bdjj8aa38"]
 
 [ext_resource type="Texture2D" uid="uid://be72pl6tf2udi" path="res://Items/Pipe/Pipe.png" id="2_if7w7"]
 [ext_resource type="PackedScene" uid="uid://bnm0iuwq01df3" path="res://Items/ItemManager.tscn" id="3_qnwg0"]
 [ext_resource type="Texture2D" uid="uid://ou37ulo4tko1" path="res://Items/Pipe/PipeGlow.png" id="3_xjrcj"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_jiv0v"]
+light_mode = 2
 
 [sub_resource type="GDScript" id="GDScript_nbs2y"]
 script/source = "extends RigidBody2D
@@ -18,7 +21,6 @@ var canHit = true
 func use():
 	if canHit:
 		durability -= drain
-		print(durability)
 		canHit = false
 		hitBox.disabled = false
 		var swing1 = create_tween()
@@ -65,7 +67,9 @@ size = Vector2(14, 9)
 size = Vector2(14, 24)
 
 [node name="Pipe" type="RigidBody2D" groups=["Item", "Movable"]]
+light_mask = 2
 texture_filter = 1
+material = SubResource("CanvasItemMaterial_jiv0v")
 gravity_scale = 0.0
 linear_damp = 1.0
 script = SubResource("GDScript_nbs2y")
@@ -87,6 +91,7 @@ damageSecondary = 10.0
 shape = SubResource("RectangleShape2D_hpdgk")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
+use_parent_material = true
 sprite_frames = SubResource("SpriteFrames_jrous")
 autoplay = "default"
 
