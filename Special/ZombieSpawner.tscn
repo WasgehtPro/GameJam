@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=3 uid="uid://bal80eeq57um3"]
+
+[sub_resource type="GDScript" id="GDScript_sdvc0"]
+script/source = "extends Node2D
+
+@onready var amount = 3
+@onready var interval = 3
+@onready var timer = $Timer
+
+const ENEMY = preload(\"res://Enemy/Enemy.tscn\")
+
+func _ready():
+	timer.wait_time = interval
+	timer.start()
+
+func _on_timer_timeout():
+	if amount > 0:
+		var enemy = ENEMY.instantiate()
+		enemy.global_position = global_position
+		get_tree().get_root().get_child(0).add_child(enemy)
+		amount -= 1
+	else:
+		queue_free()
+"
+
+[node name="ZombieSpawner" type="Node2D"]
+script = SubResource("GDScript_sdvc0")
+
+[node name="Timer" type="Timer" parent="."]
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

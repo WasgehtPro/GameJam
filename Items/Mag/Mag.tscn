@@ -10,12 +10,11 @@ light_mode = 2
 [sub_resource type="GDScript" id="GDScript_vv3fk"]
 script/source = "extends RigidBody2D
 
-@export var durability = 10
+@export var durability = randi_range(5, 20)
 
 func use(player):
 	if player:
 		player.ammo += durability
-		player.hand = null
 		player.checkAmmo()
 		queue_free()
 "

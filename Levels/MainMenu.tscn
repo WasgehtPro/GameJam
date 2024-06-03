@@ -20,11 +20,19 @@ offset_bottom = 8.0
 text = "Play"
 script = ExtResource("1_h3kc5")
 
+[node name="TextEdit" type="TextEdit" parent="Control"]
+offset_left = 17.0
+offset_top = 92.0
+offset_right = 203.0
+offset_bottom = 133.0
+text = "Made by WasgehtPro"
+
 [node name="Camera2D" type="Camera2D" parent="."]
 
 [node name="Background" type="Sprite2D" parent="."]
 z_index = -1
-scale = Vector2(1.5, 1.1)
+position = Vector2(-1.50008, 2.50002)
+scale = Vector2(2.39125, 1.795)
 texture = ExtResource("1_8me4n")
 
 [connection signal="pressed" from="Control/Button" to="Control/Button" method="_on_pressed"]

@@ -11,7 +11,7 @@ light_mode = 2
 script/source = "extends RigidBody2D
 
 var maxAmmo = 10
-@export var durability = 2
+@export var durability = randi_range(0, 10)
 
 const BULLET = preload(\"res://Items/Bullet/Bullet.tscn\")
 
@@ -21,19 +21,21 @@ func use(player):
 		var bullet = BULLET.instantiate()
 		bullet.global_transform = global_transform
 		bullet.fly()
+		bullet.get_child(1).start()
 		get_tree().get_root().add_child(bullet)
+	if durability <= 0:
 		if player:
 			var refill = player.ammo
 			if refill > maxAmmo:
 				player.ammo -= maxAmmo
 				durability = maxAmmo
 			else:
-				durability = refill
+				durability += refill
 				player.ammo = 0
-			player.checkAmmo()
+		player.checkAmmo()
 
 func transfer():
-	return durability
+	return [durability]
 "
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_o4ehx"]

@@ -14,8 +14,10 @@ func use(player):
 	if player:
 		if player.batteries < 3:
 			player.batteries += 1
+			player.health += 10
+			player.progress_bar.value = player.health
+			player.speed += 5
 			player.refreshBattery()
-			player.hand = null
 			queue_free()
 		else:
 			player.drop()

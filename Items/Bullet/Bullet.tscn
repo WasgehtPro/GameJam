@@ -18,14 +18,16 @@ func fly():
 func use(player):
 	if player:
 		player.ammo += 1
-		player.hand = null
 		player.checkAmmo()
 		queue_free()
 	else:
 		queue_free()
 
 func _on_vomit_timer_timeout():
-	self.collision_layer = 1
+	collision_layer = 3
+
+func _on_timer_timeout():
+	queue_free()
 "
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_o4ehx"]
@@ -59,6 +61,8 @@ size = Vector2(7, 6)
 [node name="Bullet" type="RigidBody2D" groups=["Item", "Movable"]]
 texture_filter = 1
 material = SubResource("CanvasItemMaterial_y4hii")
+collision_layer = 4
+collision_mask = 4
 gravity_scale = 0.0
 linear_damp = 1.0
 script = SubResource("GDScript_vv3fk")
@@ -75,6 +79,9 @@ sprite = NodePath("../Sprite")
 damagePrimary = 20.0
 damageSecondary = 3.0
 slowEffect = 10.0
+
+[node name="crazyTimer" type="Timer" parent="."]
+wait_time = 10.0
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_o4ehx")
@@ -101,4 +108,5 @@ wait_time = 0.2
 one_shot = true
 autostart = true
 
+[connection signal="timeout" from="crazyTimer" to="." method="_on_timer_timeout"]
 [connection signal="timeout" from="VomitTimer" to="." method="_on_vomit_timer_timeout"]

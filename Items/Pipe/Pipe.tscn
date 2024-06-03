@@ -12,27 +12,29 @@ script/source = "extends RigidBody2D
 
 @onready var hitBox = $HitBoxArea/HitBox
 
-@export var durability = 100
-@export var drain = 10
+@export var durability = randi_range(100, 300)
+@export var drain = randi_range(0, 20)
 
 var canHit = true
 
+
+func _ready():
+	durability = randi_range(100, 300)
+	
 func use(player):
 	if canHit:
 		durability -= drain
 		canHit = false
 		hitBox.disabled = false
 		var swing1 = create_tween()
-		swing1.tween_property(self, \"rotation\", deg_to_rad(90), .05)
+		swing1.tween_property(self, \"rotation\", deg_to_rad(global_rotation_degrees+90), .05)
 		await swing1.finished
 		var swing2 = create_tween()
-		swing2.tween_property(self, \"rotation\", deg_to_rad(0), .5)
+		swing2.tween_property(self, \"rotation\", deg_to_rad(global_rotation_degrees-90), .5)
 		await swing2.finished
 		hitBox.disabled = true
 		if durability <= 0:
 			queue_free()
-			if player:
-				player.hand = null
 		canHit = true
 
 func transfer():

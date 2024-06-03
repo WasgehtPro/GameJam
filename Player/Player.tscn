@@ -14,12 +14,11 @@ var slowDown = speed * 0.2
 var grabbedObj
 var hit = false
 var health = 100
-var hand
 var batteries = 0
-var maxAmmo = 10
+var maxAmmo = 200
 var ammo = 0
 
-@onready var pickUpRange = $PickUpRange
+@onready var pickUpRange = $Sprite2D/GrabRange
 @onready var hit_timer = $HitTimer
 @onready var sprite = $Sprite2D
 @onready var hands = $Sprite2D/Hands
@@ -28,18 +27,30 @@ var ammo = 0
 @onready var batteryContainer = $Batteries
 const BATTERY_IMG = preload(\"res://UI/BatteryImg.tscn\")
 const BULLET = preload(\"res://Items/Bullet/Bullet.tscn\")
+@onready var interact_timer = $InteractTimer
+var interactions = -1
+var interacting = false
 
 func _physics_process(delta):
+	if speed > 200:
+		speed = 200
+	
 	sprite.look_at(get_global_mouse_position())
 	
 	if Input.is_action_just_pressed(\"Equip\"):
-		if hand:
-			drop()
-		else:
 			equip()
 	
-	if Input.is_action_just_pressed(\"RMB\") and hand:
-		hand.use(self)
+	if Input.is_action_just_pressed(\"LMB\"):
+		if hands.get_child(0):
+			hands.get_child(0).get_child(0).drop(hands.global_transform, Vector2(1, 0).rotated(sprite.global_rotation))
+	
+	if Input.is_action_pressed(\"RMB\"):
+		if not interacting:
+			interacting = true
+			for i in hands.get_children():
+				if is_instance_valid(i):
+					interactions += 1
+			interact_timer.start()
 		
 	if Input.is_action_pressed(\"Grab\"):
 		onGrab()
@@ -82,7 +93,7 @@ func onGrabStop():
 func handleCollision():
 	var col = get_last_slide_collision()
 	var obj = col.get_collider()
-	if \"Enemy\" in obj.name:
+	if obj.is_in_group(\"Enemy\"):
 		if not hit:
 			hit = true
 			health -= 10
@@ -96,17 +107,17 @@ func handleCollision():
 
 
 func drop():
-	if is_instance_valid(hand):
-		hand.get_child(0).drop(hands.global_transform, Vector2(1, 0).rotated(sprite.global_rotation))
-	hand = null
+		for i in hands.get_children():
+			if is_instance_valid(i):
+				i.get_child(0).drop(hands.global_transform, Vector2(1, 0).rotated(sprite.global_rotation))
 
 func equip():
 	var obj = grabRange.get_collider() as RigidBody2D
 	if obj:
 		if obj.is_in_group(\"Item\"):
-			hand = obj.get_child(0).pickUp()
-			hands.add_child(hand)
-			hand.get_child(0).onEquip()
+			var item = obj.get_child(0).pickUp()
+			hands.add_child(item)
+			item.get_child(0).onEquip()
 
 
 func _on_hit_timer_timeout():
@@ -131,6 +142,16 @@ func checkAmmo():
 			bullet.apply_force(Vector2(randi_range(-10, 10), randi_range(-10, 10)) * 2000)
 			bullet.collision_layer = 2
 			get_tree().get_root().add_child(bullet)
+
+
+func _on_interact_timer_timeout():
+	if interactions > -1:
+		if is_instance_valid(hands.get_child(interactions)):
+			hands.get_child(interactions).use(self)
+		interactions -= 1
+	else :
+		interacting = false
+		interact_timer.stop()
 "
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_axj04"]
@@ -146,6 +167,9 @@ bg_color = Color(0, 1, 0, 1)
 texture_filter = 1
 motion_mode = 1
 script = SubResource("GDScript_5151p")
+
+[node name="InteractTimer" type="Timer" parent="."]
+wait_time = 0.2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_axj04")
@@ -225,4 +249,5 @@ anchors_preset = 0
 offset_top = 16.0
 offset_bottom = 16.0
 
+[connection signal="timeout" from="InteractTimer" to="." method="_on_interact_timer_timeout"]
 [connection signal="timeout" from="HitTimer" to="." method="_on_hit_timer_timeout"]

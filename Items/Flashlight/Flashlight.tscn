@@ -12,7 +12,7 @@ light_mode = 2
 script/source = "extends RigidBody2D
 
 @export var durability = 100
-@export var emptyTime = 3
+@export var emptyTime = randi_range(0, 180)
 var drain
 var player
 
@@ -28,7 +28,8 @@ func _ready():
 func use(newPlayer):
 	player = newPlayer
 	if not deb:
-		disable()
+		print()
+		#disable()
 	elif durability > 0:
 		enable()
 	else:

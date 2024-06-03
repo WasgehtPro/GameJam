@@ -1,11 +1,113 @@
-[gd_scene load_steps=3 format=3 uid="uid://duck3ak2bysci"]
+[gd_scene load_steps=8 format=3 uid="uid://duck3ak2bysci"]
 
-[ext_resource type="PackedScene" uid="uid://dab1m1g8q4bre" path="res://Objects/Vase/Vase.tscn" id="2_iuhpx"]
+[ext_resource type="PackedScene" uid="uid://fh0k847nmdvp" path="res://Items/Battery/Battery.tscn" id="3_6xhy2"]
+[ext_resource type="PackedScene" uid="uid://br01bdjj8aa38" path="res://Items/Pipe/Pipe.tscn" id="3_crbba"]
+[ext_resource type="PackedScene" uid="uid://vbyrgmete8v4" path="res://Items/Flashlight/Flashlight.tscn" id="4_61iba"]
 [ext_resource type="PackedScene" uid="uid://bmt1aict1k0h8" path="res://Player/Player.tscn" id="8_wcwht"]
 
+[sub_resource type="GDScript" id="GDScript_uc68q"]
+script/source = "extends Node2D
+
+@onready var timer = $Timer
+var brickFolder = [preload(\"res://Bricks/Brick1.tscn\"),
+					preload(\"res://Bricks/Brick2.tscn\"),
+					preload(\"res://Bricks/Brick3.tscn\"),
+					preload(\"res://Bricks/Brick4.tscn\")]
+var max = 3
+var zombies = 0
+var brick1
+var brick2
+var brick3
+var brick4
+
+func _ready():
+	spawn()
+
+func _on_timer_timeout():
+	spawn()
+
+func spawn():
+	zombies = 0
+	for z in get_tree().get_root().get_child(0).get_children():
+		if z.is_in_group(\"Enemy\"):
+			zombies += 1
+			
+	if zombies <= 0:
+		for i in get_tree().get_root().get_child(0).get_children():
+			if i.is_in_group(\"Player\"):
+				i.global_position = Vector2(672, 672)
+			
+		if brick1:
+			brick1.queue_free()
+			brick2.queue_free()
+			brick3.queue_free()
+			brick4.queue_free()
+		
+		brick1 = brickFolder[randi_range(0, max)].instantiate()
+		brick1.global_position = Vector2(0, 0)
+		add_child(brick1)
+		
+		brick2 = brickFolder[randi_range(0, max)].instantiate()
+		brick2.global_position = Vector2(672, 0)
+		add_child(brick2)
+		
+		brick3 = brickFolder[randi_range(0, max)].instantiate()
+		brick3.global_position = Vector2(0, 672)
+		add_child(brick3)
+		
+		brick4 = brickFolder[randi_range(0, max)].instantiate()
+		brick4.global_position = Vector2(672, 672)
+		add_child(brick4)
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fg5n7"]
+size = Vector2(2084.5, 10)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xwhh4"]
+size = Vector2(11, 1631.5)
+
 [node name="MainLevel" type="Node2D"]
+script = SubResource("GDScript_uc68q")
 
 [node name="Player" parent="." instance=ExtResource("8_wcwht")]
-position = Vector2(-39, 6)
+z_index = 1
+position = Vector2(667, 689)
 
-[node name="Vase" parent="." instance=ExtResource("2_iuhpx")]
+[node name="Timer" type="Timer" parent="."]
+wait_time = 5.0
+autostart = true
+
+[node name="Pipe2" parent="." instance=ExtResource("3_crbba")]
+position = Vector2(710, 689)
+
+[node name="Battery" parent="." instance=ExtResource("3_6xhy2")]
+position = Vector2(697, 708)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(979.5, -5)
+shape = SubResource("RectangleShape2D_fg5n7")
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2"]
+position = Vector2(968, 1349)
+shape = SubResource("RectangleShape2D_fg5n7")
+
+[node name="StaticBody2D3" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D3"]
+position = Vector2(-5, 549.5)
+shape = SubResource("RectangleShape2D_xwhh4")
+
+[node name="StaticBody2D4" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D4"]
+position = Vector2(1350.5, 797.25)
+shape = SubResource("RectangleShape2D_xwhh4")
+
+[node name="Flashlight" parent="." instance=ExtResource("4_61iba")]
+position = Vector2(694, 672)
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

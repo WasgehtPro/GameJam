@@ -28,6 +28,7 @@ func _ready():
 	glowBox.body_entered.connect(hitSecondary)
 	if hitBoxArea:
 		hitBoxArea.body_entered.connect(hitPrimary)
+	root.global_rotation_degrees = randi_range(0, 360)
 
 func glow():
 	if not equipped:
@@ -80,11 +81,13 @@ func onThrowStop():
 
 func getCopy():
 	var newItem = bluePrint.instantiate()
-	if root.has_method(\"transfer\"):
-		var durDrain = root.transfer()
-		newItem.durability = durDrain[0]
-		if durDrain[1]:
+	if root.has_method(\"transfer\") and is_instance_valid(root):
+		var durDrain := root.transfer() as Array
+		if durDrain.size() == 2:
+			newItem.durability = durDrain[0]
 			newItem.drain = durDrain[1]
+		else:
+			newItem.durability = durDrain[0]
 	return newItem
 "
 

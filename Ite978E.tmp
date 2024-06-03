@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3 uid="uid://cmlt6cf2fls2t"]
+
+[sub_resource type="GDScript" id="GDScript_qw7b1"]
+script/source = "extends Node2D
+
+var items = [preload(\"res://Items/Battery/Battery.tscn\"),
+preload(\"res://Items/Bullet/Bullet.tscn\"),
+preload(\"res://Items/Flashlight/Flashlight.tscn\"),
+preload(\"res://Items/Mag/Mag.tscn\"),
+preload(\"res://Items/Pipe/Pipe.tscn\"),
+preload(\"res://Items/ItemManager.tscn\")]
+
+var max = 5
+
+func _ready():
+	var item = items[randi_range(0, max)].instantiate()
+	item.global_position = global_position
+	item.global_rotation_degrees = randi_range(0, 360)
+	get_tree().get_root().get_child(0).add_child(item)
+	queue_free()
+"
+
+[node name="ItemSpawner" type="Node2D"]
+script = SubResource("GDScript_qw7b1")

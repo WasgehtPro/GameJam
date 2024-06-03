@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3 uid="uid://cmlt6cf2fls2t"]
+
+[sub_resource type="GDScript" id="GDScript_qw7b1"]
+script/source = "extends Node2D
+
+var items = [preload(\"res://Items/Battery/Battery.tscn\"),
+preload(\"res://Items/Bullet/Bullet.tscn\"),
+preload(\"res://Items/Flashlight/Flashlight.tscn\"),
+preload(\"res://Items/Mag/Mag.tscn\"),
+preload(\"res://Items/Pipe/Pipe.tscn\")]
+
+const PIPE = preload(\"res://Items/Pipe/Pipe.tscn\")
+var max = 4
+
+func _ready():
+	if randi_range(0, 100) <= 80:
+		var item := items[randi_range(0, max)].instantiate() as RigidBody2D
+		item.global_position = global_position
+		item.global_rotation_degrees = randf_range(-180, 180)
+		get_tree().get_root().get_child(0).call_deferred(\"add_child\", item)
+"
+
+[node name="ItemSpawner" type="Node2D"]
+script = SubResource("GDScript_qw7b1")

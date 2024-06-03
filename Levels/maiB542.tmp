@@ -1,0 +1,67 @@
+[gd_scene load_steps=3 format=3 uid="uid://duck3ak2bysci"]
+
+[ext_resource type="PackedScene" uid="uid://bmt1aict1k0h8" path="res://Player/Player.tscn" id="8_wcwht"]
+
+[sub_resource type="GDScript" id="GDScript_uc68q"]
+script/source = "extends Node2D
+
+@onready var timer = $Timer
+var brickFolder = [preload(\"res://Bricks/Brick1.tscn\"),
+					preload(\"res://Bricks/Brick2.tscn\"),
+					preload(\"res://Bricks/Brick3.tscn\"),
+					preload(\"res://Bricks/Brick4.tscn\")]
+var max = 3
+var zombies = 0
+var brick1
+var brick2
+var brick3
+var brick4
+
+func _on_timer_timeout():
+	zombies = 0
+	for z in get_tree().get_root().get_child(0).get_children():
+		if z.is_in_group(\"Enemy\"):
+			zombies += 1
+			print(1)
+		print(z)
+			
+	if zombies <= 0:
+		for i in get_tree().get_root().get_child(0).get_children():
+			if i.is_in_group(\"Player\"):
+				i.global_position = Vector2(672, 672)
+			
+		if brick1:
+			brick1.queue_free()
+			brick2.queue_free()
+			brick3.queue_free()
+			brick4.queue_free()
+		
+		brick1 = brickFolder[randi_range(0, max)].instantiate()
+		brick1.global_position = Vector2(0, 0)
+		add_child(brick1)
+		
+		brick2 = brickFolder[randi_range(0, max)].instantiate()
+		brick2.global_position = Vector2(672, 0)
+		add_child(brick2)
+		
+		brick3 = brickFolder[randi_range(0, max)].instantiate()
+		brick3.global_position = Vector2(0, 672)
+		add_child(brick3)
+		
+		brick4 = brickFolder[randi_range(0, max)].instantiate()
+		brick4.global_position = Vector2(672, 672)
+		add_child(brick4)
+"
+
+[node name="MainLevel" type="Node2D"]
+script = SubResource("GDScript_uc68q")
+
+[node name="Player" parent="." instance=ExtResource("8_wcwht")]
+z_index = 1
+position = Vector2(672, 672)
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 5.0
+autostart = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
